@@ -1,0 +1,275 @@
+---
+swagger: "2.0"
+info:
+  description: "A simple API to learn how to write OpenAPI Specification"
+  version: "1.0.0"
+  title: "Simple API"
+host: "simple.api"
+basePath: "/openapi101"
+schemes:
+- "https"
+paths:
+  /persons:
+    get:
+      summary: "Gets some persons"
+      description: "Returns a list containing all persons."
+      operationId: "persons_get"
+      parameters:
+      - name: "User_Agent"
+        in: "header"
+        required: true
+        type: "string"
+      - name: "pageSize"
+        in: "query"
+        description: "Number of persons returned"
+        required: false
+        type: "integer"
+        default: 20
+        maximum: 100
+        exclusiveMaximum: false
+        minimum: 0
+        exclusiveMinimum: true
+        multipleOf: 10
+        format: "int32"
+      - name: "pageNumber"
+        in: "query"
+        description: "Page number"
+        required: false
+        type: "integer"
+        default: 1
+      responses:
+        200:
+          description: "A list of Person"
+          schema:
+            $ref: "#/definitions/Persons"
+        500:
+          description: "An unexpected error occured."
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
+    post:
+      summary: "Creates a person"
+      description: "Adds a new person to the persons list."
+      operationId: "persons_post"
+      consumes:
+      - "application/x-www-form-urlencoded"
+      produces:
+      - "text/html"
+      parameters:
+      - name: "username"
+        in: "formData"
+        required: true
+        type: "string"
+        maxLength: 64
+        minLength: 8
+        pattern: "[a-z0-9]{8,64}"
+        x-regex: "[a-z0-9]{8,64}"
+        x-modifiers: []
+      - name: "firstname"
+        in: "formData"
+        required: false
+        type: "string"
+      - name: "lastname"
+        in: "formData"
+        required: false
+        type: "string"
+      - name: "dateOfBirth"
+        in: "formData"
+        required: false
+        type: "string"
+        format: "date"
+      responses:
+        204:
+          description: "Persons succesfully created."
+          headers:
+            X-Rate-Limit-Remaining:
+              type: "integer"
+            X-Rate-Limit-Reset:
+              type: "string"
+              format: "date-time"
+        400:
+          description: "Persons couldn't have been created."
+        500:
+          description: "An unexpected error occured."
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
+  /persons/{username}:
+    get:
+      summary: "Gets a person"
+      description: "Returns a single person for its username"
+      operationId: "persons_username_get"
+      parameters:
+      - name: "User_Agent"
+        in: "header"
+        required: true
+        type: "string"
+      - name: "username"
+        in: "path"
+        description: "The person's username"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "A Person"
+          schema:
+            required:
+            - "username"
+            properties:
+              firstName:
+                type: "string"
+              lastName:
+                type: "string"
+              username:
+                type: "string"
+        404:
+          description: "The Person does not exists."
+        500:
+          description: "An unexpected error occured."
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
+    delete:
+      summary: "Deletes a person"
+      description: "Delete a single person identified via its username"
+      operationId: "persons_username_delete"
+      parameters: []
+      responses:
+        204:
+          description: "Person successfully deleted."
+          headers:
+            X-Rate-Limit-Remaining:
+              type: "integer"
+            X-Rate-Limit-Reset:
+              type: "string"
+              format: "date-time"
+        404:
+          description: "Person does not exist."
+        500:
+          description: "An unexpected error occured."
+          schema:
+            $ref: "#/definitions/Error"
+        default:
+          description: "A totally unexpected response"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
+definitions:
+  Person:
+    required:
+    - "username"
+    properties:
+      firstName:
+        type: "string"
+      lastName:
+        type: "string"
+      username:
+        type: "string"
+        minLength: 8
+        maxLength: 64
+        pattern: "[a-z0-9]{8,64}"
+        x-regex: "[a-z0-9]{8,64}"
+        x-modifiers: []
+      dateOfBirth:
+        type: "string"
+        format: "date"
+      lastTimeOnline:
+        type: "string"
+        format: "date-time"
+        readOnly: true
+      avatarBase64PNG:
+        type: "string"
+        format: "byte"
+        pattern: "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
+        x-regex: "^(?:[A-Za-z0-9+\\/]{4})*(?:[A-Za-z0-9+\\/]{2}==|[A-Za-z0-9+\\/]{3}=)?$"
+        x-modifiers: []
+      pokenLanguages:
+        $ref: "#/definitions/SpokenLanguages"
+  Persons:
+    type: "array"
+    items:
+      $ref: "#/definitions/Person"
+    uniqueItems: true
+    minItems: 10
+    maxItems: 100
+  Error:
+    required:
+    - "code"
+    - "message"
+    properties:
+      code:
+        type: "string"
+      message:
+        type: "string"
+parameters:
+  username:
+    name: "username"
+    in: "path"
+    description: "The person's username"
+    required: true
+    type: "string"
+  pageSize:
+    name: "pageSize"
+    in: "query"
+    description: "Number of persons returned"
+    required: false
+    type: "integer"
+    default: 20
+    maximum: 100
+    exclusiveMaximum: false
+    minimum: 0
+    exclusiveMinimum: true
+    multipleOf: 10
+    format: "int32"
+  pageNumber:
+    name: "pageNumber"
+    in: "query"
+    description: "Page number"
+    required: false
+    type: "integer"
+    default: 1
+  includeNonVerifiedUsers:
+    name: "includeNonVerifiedUsers"
+    in: "query"
+    required: false
+    type: "boolean"
+    default: false
+    allowEmptyValue: true
+  sortPersons:
+    name: "sort"
+    in: "query"
+    required: false
+    type: "array"
+    items:
+      type: "string"
+      pattern: "[-+](username|lastTimeOnline|firstname|lastname)"
+    collectionFormat: "pipes"
+    default: "[-lastTimeOnline, +username]"
+    maxItems: 3
+    minItems: 1
+    uniqueItems: true
+  filterItemTypes:
+    name: "itemType"
+    in: "query"
+    required: false
+    type: "array"
+    items:
+      type: "string"
+      enum:
+      - "AudioCassette"
+      - "Vinyl"
+      - "VHS"
+    collectionFormat: "multi"
+    uniqueItems: true
+  userAgent:
+    name: "User_Agent"
+    in: "header"
+    required: true
+    type: "string"
+responses:
+  Standard500ErrorResponse:
+    description: "An unexpected error occured."
+    schema:
+      $ref: "#/definitions/Error"
+  PersonDoesNotExistResponse:
+    description: "Person does not exist."
+  TotallyUnexpectedResponse:
+    description: "A totally unexpected response"

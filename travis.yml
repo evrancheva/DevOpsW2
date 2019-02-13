@@ -1,0 +1,29 @@
+sudo: required
+services:
+- docker
+language: java
+matrix:
+  include:
+  - jdk: openjdk8
+before_install:
+- docker version
+- docker info
+install:
+- npm install newman
+before_script:
+- node --version
+- npm --version
+- node_modules/.bin/newman --version
+script:
+- mvn clean install dockerfile:build
+- docker run --name example_api -d -t -p 127.0.0.1:8080:8080 my_docker_repo/swagger-spring-example:1.0.0
+- docker ps
+- count=0 && until $(curl --output /dev/null --silent --head --fail http://localhost:8080);
+  do printf '.' && sleep 3 && count=$((count+1)) && if [ $count -gt 5 ]; then break;
+  fi; done
+- docker logs example_api
+- node_modules/.bin/newman run tests/postman_collection.json -e tests/postman_environment.json
+after_success:
+- docker login -u $DOCKER_USER -p $DOCKER_PASS
+- docker tag my_docker_repo/swagger-spring-example:1.0.0 my_docker_repo/swagger-spring-example:1.0.0
+- docker push my_docker_repo/swagger-spring-example:1.0.0

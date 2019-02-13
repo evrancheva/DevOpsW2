@@ -1,0 +1,285 @@
+{
+    "info": {
+        "_postman_id": "b8670853-cb65-4bdd-82a4-c0a0558d1865",
+        "name": "Simple API",
+        "description": "A simple API to learn how to write OpenAPI Specification",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "persons",
+            "item": [
+                {
+                    "name": "Creates a person",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "id": "059aa320-c559-4697-bde3-b3d44acbff6f",
+                                "exec": [
+                                    "pm.test(\"response must be valid\", function () {",
+                                    "    pm.response.to.not.be.error; ",
+                                    "    pm.response.to.have.status(204);",
+                                    "});",
+                                    "",
+                                    "//Test if created ",
+                                    "tests[\"Status code is 204\"] = (responseCode.code === 204);",
+                                    "//Get the POST count ",
+                                    "var count = _.parseInt(environment.count);",
+                                    "if (responseCode.code === 204) {",
+                                    "    var numOfposts = _.parseInt(environment.numOfposts);",
+                                    "    //If count is less than 5 set next to this",
+                                    "    if(count<numOfposts-1){",
+                                    "        postman.setNextRequest(\"Creates a person\");",
+                                    "    }else{",
+                                    "        postman.setNextRequest(\"Gets some persons\");",
+                                    "    }",
+                                    "    count++;",
+                                    "    postman.setEnvironmentVariable(\"count\", count);",
+                                    "    console.log(count);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"firstName\": \"firstName\",\n  \"lastName\": \"lastName\",\n  \"username\": \"username\",\n  \"dateOfBirth\": \"2019-02-04\",\n  \"lastTimeOnline\": \"2019-02-04T16:11:51.858Z\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/persons",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "persons"
+                            ]
+                        },
+                        "description": "Adds a new person to the persons list."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Gets some persons",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "id": "eb32029f-153a-40f0-9436-bfb7f98fbb4f",
+                                "exec": [
+                                    "pm.test(\"response must be valid and have a body\", function () {",
+                                    "     // assert that the status code is 200",
+                                    "     pm.response.to.be.ok; // info, success, redirection, clientError,  serverError, are other variants",
+                                    "     // assert that the response has a valid JSON body",
+                                    "     pm.response.to.be.withBody;",
+                                    "     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+                                    "});",
+                                    "",
+                                    "//reset count variable",
+                                    "postman.setEnvironmentVariable(\"count\", 0);",
+                                    "",
+                                    "var jsonData = JSON.parse(responseBody); //get the response and pase it into json",
+                                    "var numOfposts = _.parseInt(environment.numOfposts);",
+                                    "tests[\"Number of array items: \"+jsonData.items.length+ \" should be eqaual to pageSize:\"+numOfposts] = jsonData.items.length == numOfposts; // test if the returned array size is equal to the numOfposts (5)",
+                                    ""
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": ""
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/persons?pageSize={{pageSize}}&pageNumber={{pageNumber}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "persons"
+                            ],
+                            "query": [
+                                {
+                                    "key": "pageSize",
+                                    "value": "{{pageSize}}"
+                                },
+                                {
+                                    "key": "pageNumber",
+                                    "value": "{{pageNumber}}"
+                                }
+                            ]
+                        },
+                        "description": "Returns a list containing all persons. The list supports paging."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Gets some persons Copy",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "id": "eb32029f-153a-40f0-9436-bfb7f98fbb4f",
+                                "exec": [
+                                    "pm.test(\"response must be valid and have a body\", function () {",
+                                    "     // assert that the status code is 200",
+                                    "     pm.response.to.be.ok; // info, success, redirection, clientError,  serverError, are other variants",
+                                    "     // assert that the response has a valid JSON body",
+                                    "     pm.response.to.be.withBody;",
+                                    "     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+                                    "});",
+                                    "",
+                                    "var jsonData = JSON.parse(responseBody); //get the response and pase it into json",
+                                    "tests[\"Number of array items: \"+jsonData.items.length+ \" should be eqaual to pageSize:\"+numOfposts] = jsonData.items.length == 2; // test if the returned array size is equal to the numOfposts (5)",
+                                    ""
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": ""
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/persons?pageSize={{pageSize}}&pageNumber={{pageNumber}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "persons"
+                            ],
+                            "query": [
+                                {
+                                    "key": "pageSize",
+                                    "value": "{{pageSize}}"
+                                },
+                                {
+                                    "key": "pageNumber",
+                                    "value": "{{pageNumber}}"
+                                }
+                            ]
+                        },
+                        "description": "Returns a list containing all persons. The list supports paging."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Gets a person",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "id": "5fda3ed3-7f8f-4b50-a39c-a36bc1f28572",
+                                "exec": [
+                                    "pm.test(\"response must be valid and have a body\", function () {",
+                                    "     // assert that the status code is 200",
+                                    "     pm.response.to.be.ok; // info, success, redirection, clientError,  serverError, are other variants",
+                                    "     // assert that the response has a valid JSON body",
+                                    "     pm.response.to.be.withBody;",
+                                    "     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+                                    "});",
+                                    "",
+                                    "",
+                                    "",
+                                    ""
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": ""
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/persons/{{username}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "persons",
+                                "{{username}}"
+                            ]
+                        },
+                        "description": "Returns a single person for its username."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Deletes a person",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "id": "ff9b1440-8409-45be-8795-f5bc8b8b9d6b",
+                                "exec": [
+                                    "pm.test(\"response must be valid\", function () {",
+                                    "    pm.response.to.not.be.error; ",
+                                    "    pm.response.to.have.status(204);",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "body": {},
+                        "url": {
+                            "raw": "{{base_url}}/persons/{{username}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "persons",
+                                "{{username}}"
+                            ]
+                        },
+                        "description": "Delete a single person identified via its username"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Folder for persons"
+        }
+    ]
+}

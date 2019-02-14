@@ -41,7 +41,7 @@ def persons_post(person=None):  # noqa: E501
     person = Person.from_dict(connexion.request.get_json()) #noqa
 
     person_list.append(person)
-    return Response(mimetype='application/json',status=204)
+    return Response(mimetype='application/json',status=204) 
 
 
 def persons_username_delete():  # noqa: E501
